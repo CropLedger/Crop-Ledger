@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  ENTERPRISE
+  COOPERATIVE
+  INSPECTOR
+  ADMIN
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum EscrowState {
+  LOCKED
+  RELEASED
+  REFUNDED
+}
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  domain       String?  @unique
+  logoUrl      String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  accounts     Account[]
+  contracts    Contract[]
+  
+  @@index([email])
+  @@index([domain])
+}
+
+model Account {
+  id               String       @id @default(cuid())
+  organizationId   String?
+  organization     Organization? @relation(fields: [organizationId], references: [id])
+  
+  email            String       @unique
+  passwordHash     String
+  stellarAddress   String?      @unique
+  type             AccountType  @default(ENTERPRISE)
+  
+  firstName        String?
+  lastName         String?
+  phone            String?
+  avatarUrl        String?
+  
+  isActive         Boolean      @default(true)
+  lastLoginAt      DateTime?
+  
+  refreshToken     String?      @unique
+  resetToken       String?      @unique
+  resetExpiresAt   DateTime?
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  contractsAsBuyer     Contract[] @relation("BuyerContracts")
+  contractsAsSeller    Contract[] @relation("SellerContracts")
+  inspections          Inspection[]
+  creditProfile         CreditProfile?
+  
+  @@index([email])
+  @@index([stellarAddress])
+  @@index([organizationId])
+}
+
+model Contract {
+  id              String          @id @default(cuid())
+  
+  contractNumber  String          @unique
+  buyerId         String
+  buyer           Account         @relation("BuyerContracts", fields: [buyerId], references: [id])
+  sellerId        String
+  seller          Account         @relation("SellerContracts", fields: [sellerId], references: [id])
+  
+  cropType        String
+  quantity        Float
+  unitPrice       Float
+  totalPrice      Float
+  
+  escrowTxId      String?
+  escrowState     EscrowState     @default(LOCKED)
+  
+  status          TransactionStatus @default(PENDING)
+  
+  deliveryDate    DateTime
+  deliveryLocation String?
+  
+  metadata        Json?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  inspections     Inspection[]
+  
+  @@index([contractNumber])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+model Inspection {
+  id          String    @id @default(cuid())
+  contractId  String
+  contract    Contract  @relation(fields: [contractId], references: [id])
+  inspectorId String
+  inspector   Account   @relation(fields: [inspectorId], references: [id])
+  
+  status      String
+  notes       String?
+  photos      String[]
+  gpsLocation Json?
+  
+  inspectedAt DateTime  @default(now())
+  
+  @@index([contractId])
+  @@index([inspectorId])
+}
+
+model CreditProfile {
+  id              String    @id @default(cuid())
+  accountId       String    @unique
+  account         Account   @relation(fields: [accountId], references: [id])
+  
+  score           Int       @default(500)
+  totalContracts  Int       @default(0)
+  completedContracts Int    @default(0)
+  defaultedContracts Int    @default(0)
+  
+  lastCalculatedAt DateTime @default(now())
+  
+  @@index([accountId])
+}
+
+model Vault {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  assetCode   String
+  issuerId    String
+  
+  apy         Float
+  minDeposit  Float
+  maxDeposit  Float
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  deposits    VaultDeposit[]
+  
+  @@index([assetCode])
+  @@index([isActive])
+}
+
+model VaultDeposit {
+  id          String   @id @default(cuid())
+  vaultId     String
+  vault       Vault    @relation(fields: [vaultId], references: [id])
+  accountId   String
+  
+  amount      Float
+  stellarTxId String?
+  
+  depositedAt DateTime @default(now())
+  
+  @@index([vaultId])
+  @@index([accountId])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  accountId   String?
+  action      String
+  entity      String
+  entityId    String?
+  changes     Json?
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([accountId])
+  @@index([entity])
+  @@index([createdAt])
+}

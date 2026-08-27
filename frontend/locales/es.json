@@ -1,0 +1,36 @@
+{
+  "common": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "signup": "Registrarse",
+    "dashboard": "Panel",
+    "contracts": "Contratos",
+    "vaults": "Bóvedas",
+    "analytics": "Analíticas",
+    "settings": "Configuración"
+  },
+  "dashboard": {
+    "title": "Resumen del Panel",
+    "totalContracts": "Total de Contratos",
+    "totalValue": "Valor Total",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "recentContracts": "Contratos Recientes",
+    "quickActions": "Acciones Rápidas",
+    "newContract": "Nuevo Contrato",
+    "deposit": "Depositar en Bóveda",
+    "withdraw": "Retirar",
+    "viewAnalytics": "Ver Analíticas"
+  },
+  "contracts": {
+    "createContract": "Crear Contrato",
+    "contractNumber": "Contrato #",
+    "cropType": "Tipo de Cultivo",
+    "quantity": "Cantidad",
+    "unitPrice": "Precio Unitario",
+    "totalPrice": "Precio Total",
+    "status": "Estado",
+    "deliveryDate": "Fecha de Entrega",
+    "deliveryLocation": "Ubicación de Entrega"
+  }
+}
