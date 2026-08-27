@@ -1,0 +1,36 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "dashboard": "Dashboard",
+    "contracts": "Contracts",
+    "vaults": "Vaults",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "totalContracts": "Total Contracts",
+    "totalValue": "Total Value",
+    "pending": "Pending",
+    "completed": "Completed",
+    "recentContracts": "Recent Contracts",
+    "quickActions": "Quick Actions",
+    "newContract": "New Contract",
+    "deposit": "Deposit to Vault",
+    "withdraw": "Withdraw",
+    "viewAnalytics": "View Analytics"
+  },
+  "contracts": {
+    "createContract": "Create Contract",
+    "contractNumber": "Contract #",
+    "cropType": "Crop Type",
+    "quantity": "Quantity",
+    "unitPrice": "Unit Price",
+    "totalPrice": "Total Price",
+    "status": "Status",
+    "deliveryDate": "Delivery Date",
+    "deliveryLocation": "Delivery Location"
+  }
+}

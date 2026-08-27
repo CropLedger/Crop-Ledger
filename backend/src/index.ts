@@ -3,8 +3,8 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
-// import swagger from '@fastify/swagger';
-// import { swaggerUI } from '@fastify/swagger-ui';
+import swagger from '@fastify/swagger';
+import swaggerUI from '@fastify/swagger-ui';
 import { registerRoutes } from './presentation/routes';
 import { registerWebSockets } from './presentation/websockets';
 import { errorHandler } from './presentation/middleware/error-handler';
@@ -35,39 +35,39 @@ async function bootstrap() {
   // WebSocket
   await fastify.register(websocket);
 
-  // Swagger (commented out for now)
-  // await fastify.register(swagger, {
-  //   openapi: {
-  //     info: {
-  //       title: 'CropLedger Enterprise API',
-  //       description: 'Enterprise agricultural supply chain management API',
-  //       version: '1.0.0',
-  //     },
-  //     servers: [
-  //       {
-  //         url: 'http://localhost:4000',
-  //         description: 'Development server',
-  //       },
-  //     ],
-  //     components: {
-  //       securitySchemes: {
-  //         bearerAuth: {
-  //           type: 'http',
-  //           scheme: 'bearer',
-  //           bearerFormat: 'JWT',
-  //         },
-  //       },
-  //     },
-  //   },
-  // });
+  // Swagger
+  await fastify.register(swagger, {
+    openapi: {
+      info: {
+        title: 'CropLedger Enterprise API',
+        description: 'Enterprise agricultural supply chain management API',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: 'http://localhost:4000',
+          description: 'Development server',
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+    },
+  });
 
-  // await fastify.register(swaggerUI, {
-  //   routePrefix: '/docs',
-  //   uiConfig: {
-  //     docExpansion: 'list',
-  //     deepLinking: true,
-  //   },
-  // });
+  await fastify.register(swaggerUI, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: true,
+    },
+  });
 
   // Error Handler
   fastify.setErrorHandler(errorHandler);

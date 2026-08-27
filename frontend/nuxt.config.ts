@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    // '@nuxtjs/i18n'
+    '@nuxtjs/i18n'
   ],
   
   css: ['~/assets/css/main.css'],
@@ -31,15 +31,16 @@ export default defineNuxtConfig({
       apiBase: process.env.API_BASE_URL || 'http://localhost:4000',
       stellarNetwork: process.env.STELLAR_NETWORK || 'TESTNET'
     }
-  }
+  },
   
-  // i18n: {
-  //   defaultLocale: 'en',
-  //   locales: [
-  //     { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
-  //     { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' }
-  //   ],
-  //   langDir: './locales',
-  //   strategy: 'no_prefix'
-  // }
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' }
+    ],
+    langDir: './locales',
+    strategy: 'no_prefix',
+    lazy: false
+  }
 })
