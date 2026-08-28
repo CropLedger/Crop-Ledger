@@ -1,6 +1,6 @@
 import { IAccountRepository } from '../../repositories/account.repository.interface';
 import { IPasswordHasher } from '../../../infrastructure/security/password-hasher.interface';
-import { AccountCreateInput } from '../../entities/account.entity';
+import { Account, AccountCreateInput } from '../../entities/account.entity';
 
 export class CreateAccountUseCase {
   constructor(
@@ -8,7 +8,7 @@ export class CreateAccountUseCase {
     private passwordHasher: IPasswordHasher,
   ) {}
 
-  async execute(input: AccountCreateInput): Promise<void> {
+  async execute(input: AccountCreateInput): Promise<Account> {
     const existingAccount = await this.accountRepository.findByEmail(input.email);
     if (existingAccount) {
       throw new Error('Account with this email already exists');
@@ -16,7 +16,7 @@ export class CreateAccountUseCase {
 
     const hashedPassword = await this.passwordHasher.hash(input.password);
     
-    await this.accountRepository.create({
+    return this.accountRepository.create({
       ...input,
       password: hashedPassword,
     });

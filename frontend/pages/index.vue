@@ -115,6 +115,10 @@
 import { ref } from 'vue'
 import { Document, Wallet, TrendCharts, Lock, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import type { AccountType } from '~/types/api'
+
+const router = useRouter()
+const { user, isAuthenticated, login, register, logout } = useAuth()
 
 const activeMenu = ref('1')
 const showLoginDialog = ref(false)
@@ -132,7 +136,7 @@ const signupForm = ref({
   password: '',
   firstName: '',
   lastName: '',
-  type: 'ENTERPRISE',
+  type: 'ENTERPRISE' as AccountType,
 })
 
 const features = ref([
@@ -158,20 +162,36 @@ const features = ref([
   },
 ])
 
+const menuRoutes: Record<string, string> = {
+  '1': '/dashboard',
+  '2': '/contracts',
+  '4': '/analytics',
+  '5': '/profile',
+}
+
 const handleMenuSelect = (index: string) => {
   activeMenu.value = index
-  ElMessage.info(`Navigating to menu item ${index}`)
+  const target = menuRoutes[index]
+  if (!target) {
+    ElMessage.info('Vaults are coming soon')
+    return
+  }
+  if (!isAuthenticated.value) {
+    showLoginDialog.value = true
+    return
+  }
+  router.push(target)
 }
 
 const handleLogin = async () => {
   loading.value = true
   try {
-    // Simulate login - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await login(loginForm.value)
     ElMessage.success('Login successful!')
     showLoginDialog.value = false
-  } catch {
-    ElMessage.error('Login failed. Please try again.')
+    router.push('/dashboard')
+  } catch (error) {
+    ElMessage.error(apiErrorMessage(error, 'Login failed. Please try again.'))
   } finally {
     loading.value = false
   }
@@ -180,32 +200,30 @@ const handleLogin = async () => {
 const handleSignup = async () => {
   loading.value = true
   try {
-    // Simulate signup - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await register(signupForm.value)
+    await login({ email: signupForm.value.email, password: signupForm.value.password })
     ElMessage.success('Account created successfully!')
     showSignupDialog.value = false
-  } catch {
-    ElMessage.error('Signup failed. Please try again.')
+    router.push('/dashboard')
+  } catch (error) {
+    ElMessage.error(apiErrorMessage(error, 'Signup failed. Please try again.'))
   } finally {
     loading.value = false
   }
 }
 
-const handleUserMenu = (command: string) => {
+const handleUserMenu = async (command: string) => {
   if (command === 'logout') {
+    await logout()
     ElMessage.success('Logged out successfully')
   } else if (command === 'profile') {
-    ElMessage.info('Profile page coming soon')
+    router.push('/profile')
   }
 }
 
 const scrollToFeatures = () => {
   featuresSection.value?.scrollIntoView({ behavior: 'smooth' })
 }
-
-// Mock auth state
-const isAuthenticated = ref(false)
-const user = ref<{ firstName?: string } | null>(null)
 </script>
 
 <style scoped>

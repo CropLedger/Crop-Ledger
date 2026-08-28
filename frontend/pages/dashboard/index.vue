@@ -15,10 +15,6 @@
             <el-icon><Document /></el-icon>
             <span>Contracts</span>
           </el-menu-item>
-          <el-menu-item index="vaults">
-            <el-icon><Wallet /></el-icon>
-            <span>Vaults</span>
-          </el-menu-item>
           <el-menu-item index="analytics">
             <el-icon><TrendCharts /></el-icon>
             <span>Analytics</span>
@@ -29,15 +25,20 @@
           </el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main>
+      <el-main v-loading="loading">
         <div class="dashboard-header">
           <h2>Dashboard Overview</h2>
-          <el-button type="primary" @click="handleNewContract">
-            <el-icon><Plus /></el-icon>
-            New Contract
-          </el-button>
+          <div class="header-actions">
+            <el-tag :type="apiHealthy ? 'success' : 'danger'" data-testid="api-status">
+              API {{ apiHealthy ? 'online' : 'offline' }}
+            </el-tag>
+            <el-button type="primary" @click="handleNewContract">
+              <el-icon><Plus /></el-icon>
+              New Contract
+            </el-button>
+          </div>
         </div>
-        
+
         <el-row :gutter="20" class="stats-row">
           <el-col :span="6">
             <el-card class="stat-card">
@@ -82,8 +83,8 @@
                   <el-button text @click="viewAllContracts">View All</el-button>
                 </div>
               </template>
-              <el-table :data="recentContracts" style="width: 100%">
-                <el-table-column prop="contractNumber" label="Contract #" width="150" />
+              <el-table :data="recentContracts" style="width: 100%" empty-text="No contracts yet">
+                <el-table-column prop="contractNumber" label="Contract #" width="220" />
                 <el-table-column prop="cropType" label="Crop Type" />
                 <el-table-column prop="quantity" label="Quantity" />
                 <el-table-column prop="totalPrice" label="Total Price" />
@@ -105,17 +106,17 @@
                   <el-icon><Plus /></el-icon>
                   Create Contract
                 </el-button>
-                <el-button @click="handleDeposit">
-                  <el-icon><Wallet /></el-icon>
-                  Deposit to Vault
-                </el-button>
-                <el-button @click="handleWithdraw">
-                  <el-icon><Download /></el-icon>
-                  Withdraw
+                <el-button @click="viewAllContracts">
+                  <el-icon><Document /></el-icon>
+                  Manage Contracts
                 </el-button>
                 <el-button @click="handleAnalytics">
                   <el-icon><TrendCharts /></el-icon>
                   View Analytics
+                </el-button>
+                <el-button @click="handleProfile">
+                  <el-icon><Setting /></el-icon>
+                  Profile Settings
                 </el-button>
               </div>
             </el-card>
@@ -127,62 +128,74 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Odometer, Document, Wallet, TrendCharts, Setting, Plus, Download } from '@element-plus/icons-vue'
+import { computed, ref } from 'vue'
+import { Odometer, Document, TrendCharts, Setting, Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import type { Contract, ContractStats } from '~/types/api'
+
+definePageMeta({ middleware: 'auth' })
 
 const router = useRouter()
-const activeMenu = ref('overview')
+const { list } = useContracts()
+const { health } = useForecast()
 
-const stats = ref({
-  totalContracts: 156,
-  totalValue: 2450000,
-  pendingContracts: 23,
-  completedContracts: 133,
+const activeMenu = ref('overview')
+const loading = ref(false)
+const apiHealthy = ref(false)
+const contracts = ref<Contract[]>([])
+const stats = ref<ContractStats>({
+  totalContracts: 0,
+  totalValue: 0,
+  pendingContracts: 0,
+  completedContracts: 0,
 })
 
-const recentContracts = ref([
-  {
-    contractNumber: 'CTR-20250827-ABC123',
-    cropType: 'Wheat',
-    quantity: 5000,
-    totalPrice: 75000,
-    status: 'PENDING',
-  },
-  {
-    contractNumber: 'CTR-20250826-DEF456',
-    cropType: 'Corn',
-    quantity: 3000,
-    totalPrice: 45000,
-    status: 'COMPLETED',
-  },
-  {
-    contractNumber: 'CTR-20250825-GHI789',
-    cropType: 'Soybeans',
-    quantity: 2000,
-    totalPrice: 60000,
-    status: 'PENDING',
-  },
-])
+const recentContracts = computed(() => contracts.value.slice(0, 5))
+
+const loadDashboard = async () => {
+  loading.value = true
+  try {
+    const data = await list()
+    contracts.value = data.contracts
+    stats.value = data.stats
+  } catch (error) {
+    ElMessage.error(apiErrorMessage(error, 'Failed to load contracts'))
+  } finally {
+    loading.value = false
+  }
+
+  try {
+    const status = await health()
+    apiHealthy.value = status.status === 'healthy'
+  } catch {
+    apiHealthy.value = false
+  }
+}
+
+onMounted(loadDashboard)
+
+const menuRoutes: Record<string, string> = {
+  contracts: '/contracts',
+  analytics: '/analytics',
+  settings: '/profile',
+}
 
 const handleMenuSelect = (index: string) => {
   activeMenu.value = index
+  const target = menuRoutes[index]
+  if (target) router.push(target)
 }
 
 const handleNewContract = () => {
-  router.push('/contracts/new')
-}
-
-const handleDeposit = () => {
-  router.push('/vaults/deposit')
-}
-
-const handleWithdraw = () => {
-  router.push('/vaults/withdraw')
+  router.push('/contracts?new=1')
 }
 
 const handleAnalytics = () => {
   router.push('/analytics')
+}
+
+const handleProfile = () => {
+  router.push('/profile')
 }
 
 const viewAllContracts = () => {
@@ -229,6 +242,12 @@ const getStatusType = (status: string) => {
 
 .dashboard-header h2 {
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .stats-row {
