@@ -82,6 +82,9 @@ model Account {
 model Contract {
   id              String          @id @default(cuid())
   
+  organizationId  String?
+  organization    Organization?   @relation(fields: [organizationId], references: [id])
+  
   contractNumber  String          @unique
   buyerId         String
   buyer           Account         @relation("BuyerContracts", fields: [buyerId], references: [id])
@@ -109,6 +112,7 @@ model Contract {
   inspections     Inspection[]
   
   @@index([contractNumber])
+  @@index([organizationId])
   @@index([buyerId])
   @@index([sellerId])
   @@index([status])

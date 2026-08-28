@@ -5,9 +5,9 @@ import { authMiddleware } from '../middleware/auth.middleware';
 export async function contractRoutes(fastify: FastifyInstance) {
   const controller = new ContractController();
 
-  fastify.get('/', { onRequest: [authMiddleware] }, controller.list);
-  fastify.get('/:id', { onRequest: [authMiddleware] }, controller.getById);
-  fastify.post('/', { onRequest: [authMiddleware] }, controller.create);
-  fastify.patch('/:id', { onRequest: [authMiddleware] }, controller.update);
-  fastify.delete('/:id', { onRequest: [authMiddleware] }, controller.delete);
+  fastify.get('/', { onRequest: [authMiddleware] }, controller.list.bind(controller));
+  fastify.get('/:id', { onRequest: [authMiddleware] }, controller.getById.bind(controller));
+  fastify.post('/', { onRequest: [authMiddleware] }, controller.create.bind(controller));
+  fastify.patch('/:id', { onRequest: [authMiddleware] }, controller.update.bind(controller));
+  fastify.delete('/:id', { onRequest: [authMiddleware] }, controller.delete.bind(controller));
 }

@@ -5,6 +5,6 @@ import { authMiddleware } from '../middleware/auth.middleware';
 export async function accountRoutes(fastify: FastifyInstance) {
   const controller = new AccountController();
 
-  fastify.get('/me', { onRequest: [authMiddleware] }, controller.getProfile);
-  fastify.patch('/me', { onRequest: [authMiddleware] }, controller.updateProfile);
+  fastify.get('/me', { onRequest: [authMiddleware] }, controller.getProfile.bind(controller));
+  fastify.patch('/me', { onRequest: [authMiddleware] }, controller.updateProfile.bind(controller));
 }

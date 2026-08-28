@@ -190,7 +190,7 @@ const viewAllContracts = () => {
 }
 
 const getStatusType = (status: string) => {
-  const statusMap: Record<string, any> = {
+  const statusMap: Record<string, string> = {
     PENDING: 'warning',
     COMPLETED: 'success',
     FAILED: 'danger',

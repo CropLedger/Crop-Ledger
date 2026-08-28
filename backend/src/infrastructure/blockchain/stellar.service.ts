@@ -1,15 +1,14 @@
-import Server from '@stellar/stellar-sdk';
-import { TransactionBuilder, Asset, Operation, Networks, Keypair } from '@stellar/stellar-sdk';
+import { Horizon, Networks, Keypair } from '@stellar/stellar-sdk';
 import { IStellarService } from './stellar.service.interface';
 
 export class StellarService implements IStellarService {
   private horizonUrl: string;
-  private server: any;
+  private server: Horizon.Server;
   private networkPassphrase: string;
 
   constructor() {
     this.horizonUrl = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
-    this.server = new Server(this.horizonUrl);
+    this.server = new Horizon.Server(this.horizonUrl);
     this.networkPassphrase = process.env.STELLAR_NETWORK === 'MAINNET' 
       ? Networks.PUBLIC 
       : Networks.TESTNET;
@@ -45,10 +44,16 @@ export class StellarService implements IStellarService {
     try {
       const account = await this.server.loadAccount(address);
       const balance = account.balances[0];
-      return {
-        balance: balance.balance,
-        assetCode: balance.asset_type === 'native' ? 'XLM' : balance.asset_code,
-      };
+      if (!balance) {
+        throw new Error('Account has no balances');
+      }
+      if (balance.asset_type === 'native') {
+        return { balance: balance.balance, assetCode: 'XLM' };
+      }
+      if (balance.asset_type === 'liquidity_pool_shares') {
+        return { balance: balance.balance, assetCode: balance.liquidity_pool_id };
+      }
+      return { balance: balance.balance, assetCode: balance.asset_code };
     } catch (error) {
       throw new Error(`Failed to fetch account balance: ${error}`);
     }
