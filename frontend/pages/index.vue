@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Document, Wallet, TrendCharts, Lock, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -170,7 +170,7 @@ const handleLogin = async () => {
     await new Promise(resolve => setTimeout(resolve, 1000))
     ElMessage.success('Login successful!')
     showLoginDialog.value = false
-  } catch (error) {
+  } catch {
     ElMessage.error('Login failed. Please try again.')
   } finally {
     loading.value = false
@@ -184,7 +184,7 @@ const handleSignup = async () => {
     await new Promise(resolve => setTimeout(resolve, 1000))
     ElMessage.success('Account created successfully!')
     showSignupDialog.value = false
-  } catch (error) {
+  } catch {
     ElMessage.error('Signup failed. Please try again.')
   } finally {
     loading.value = false

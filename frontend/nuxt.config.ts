@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   
   modules: [
+    '@nuxt/eslint',
     '@element-plus/nuxt',
     '@pinia/nuxt',
     '@vueuse/nuxt',
