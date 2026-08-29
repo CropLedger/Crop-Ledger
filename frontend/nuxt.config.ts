@@ -28,8 +28,8 @@ export default defineNuxtConfig({
   
   runtimeConfig: {
     public: {
-      apiBase: process.env.API_BASE_URL || 'http://localhost:4000',
-      stellarNetwork: process.env.STELLAR_NETWORK || 'TESTNET'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://api.cropledger.com' : 'http://localhost:5000'),
+      stellarNetwork: process.env.NUXT_PUBLIC_STELLAR_NETWORK || 'TESTNET'
     }
   },
   
