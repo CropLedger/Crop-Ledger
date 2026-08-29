@@ -1,15 +1,14 @@
-import Server from '@stellar/stellar-sdk';
-import { TransactionBuilder, Asset, Operation, Networks, Keypair } from '@stellar/stellar-sdk';
+import { Horizon, TransactionBuilder, Asset, Operation, Networks, Keypair } from '@stellar/stellar-sdk';
 import { IStellarService } from './stellar.service.interface';
 
 export class StellarService implements IStellarService {
   private horizonUrl: string;
-  private server: any;
+  private server: Horizon.Server;
   private networkPassphrase: string;
 
   constructor() {
     this.horizonUrl = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
-    this.server = new Server(this.horizonUrl);
+    this.server = new Horizon.Server(this.horizonUrl);
     this.networkPassphrase = process.env.STELLAR_NETWORK === 'MAINNET' 
       ? Networks.PUBLIC 
       : Networks.TESTNET;
