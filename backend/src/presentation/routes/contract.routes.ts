@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { ContractController } from '../controllers/contract.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { ContractController } from '../controllers/contract.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 
 export async function contractRoutes(fastify: FastifyInstance) {
   const controller = new ContractController();

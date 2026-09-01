@@ -1,6 +1,6 @@
-import { prisma } from '../prisma-client';
-import { Account, AccountCreateInput, AccountUpdateInput, AccountType } from '../../../domain/entities/account.entity';
-import { IAccountRepository } from '../../../domain/repositories/account.repository.interface';
+import { prisma } from '../prisma-client.js';
+import { Account, AccountCreateInput, AccountUpdateInput, AccountType } from '../../../domain/entities/account.entity.js';
+import { IAccountRepository } from '../../../domain/repositories/account.repository.interface.js';
 
 export class AccountRepository implements IAccountRepository {
   async findById(id: string): Promise<Account | null> {

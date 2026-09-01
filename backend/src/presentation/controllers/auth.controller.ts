@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { CreateAccountUseCase } from '../../domain/use-cases/account/create-account.use-case';
-import { AccountRepository } from '../../infrastructure/database/repositories/account.repository';
-import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-hasher';
+import { CreateAccountUseCase } from '../../domain/use-cases/account/create-account.use-case.js';
+import { AccountRepository } from '../../infrastructure/database/repositories/account.repository.js';
+import { BcryptPasswordHasher } from '../../infrastructure/security/bcrypt-hasher.js';
 import { z } from 'zod';
 
 const registerSchema = z.object({

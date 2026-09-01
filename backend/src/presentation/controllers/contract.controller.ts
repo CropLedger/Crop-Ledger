@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { CreateContractUseCase } from '../../domain/use-cases/contract/create-contract.use-case';
-import { ContractRepository } from '../../infrastructure/database/repositories/contract.repository';
-import { StellarService } from '../../infrastructure/blockchain/stellar.service';
+import { CreateContractUseCase } from '../../domain/use-cases/contract/create-contract.use-case.js';
+import { ContractRepository } from '../../infrastructure/database/repositories/contract.repository.js';
+import { StellarService } from '../../infrastructure/blockchain/stellar.service.js';
 import { z } from 'zod';
 
 const createContractSchema = z.object({

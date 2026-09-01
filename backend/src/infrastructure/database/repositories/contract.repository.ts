@@ -1,6 +1,6 @@
-import { prisma } from '../prisma-client';
-import { Contract, ContractCreateInput, ContractUpdateInput, TransactionStatus, EscrowState } from '../../../domain/entities/contract.entity';
-import { IContractRepository } from '../../../domain/repositories/contract.repository.interface';
+import { prisma } from '../prisma-client.js';
+import { Contract, ContractCreateInput, ContractUpdateInput, TransactionStatus, EscrowState } from '../../../domain/entities/contract.entity.js';
+import { IContractRepository } from '../../../domain/repositories/contract.repository.interface.js';
 
 export class ContractRepository implements IContractRepository {
   async findById(id: string): Promise<Contract | null> {

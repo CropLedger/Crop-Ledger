@@ -5,9 +5,9 @@ import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
-import { registerRoutes } from './presentation/routes';
-import { registerWebSockets } from './presentation/websockets';
-import { errorHandler } from './presentation/middleware/error-handler';
+import { registerRoutes } from './presentation/routes/index.js';
+import { registerWebSockets } from './presentation/websockets/index.js';
+import { errorHandler } from './presentation/middleware/error-handler.js';
 
 const fastify = Fastify({
   logger: true,

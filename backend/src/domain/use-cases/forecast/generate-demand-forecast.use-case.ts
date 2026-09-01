@@ -1,5 +1,5 @@
-import { IDemandForecastService } from '../../../infrastructure/ai/demand-forecast.service.interface';
-import { DemandForecast, ForecastCreateInput } from '../../entities/forecast.entity';
+import { IDemandForecastService } from '../../../infrastructure/ai/demand-forecast.service.interface.js';
+import { DemandForecast, ForecastCreateInput } from '../../entities/forecast.entity.js';
 
 export class GenerateDemandForecastUseCase {
   constructor(

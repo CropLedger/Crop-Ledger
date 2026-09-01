@@ -1,5 +1,5 @@
 import { Horizon, TransactionBuilder, Asset, Operation, Networks, Keypair } from '@stellar/stellar-sdk';
-import { IStellarService } from './stellar.service.interface';
+import { IStellarService } from './stellar.service.interface.js';
 
 export class StellarService implements IStellarService {
   private horizonUrl: string;

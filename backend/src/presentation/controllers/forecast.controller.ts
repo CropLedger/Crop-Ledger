@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { GenerateDemandForecastUseCase } from '../../domain/use-cases/forecast/generate-demand-forecast.use-case';
-import { DemandForecastService } from '../../infrastructure/ai/demand-forecast.service';
+import { GenerateDemandForecastUseCase } from '../../domain/use-cases/forecast/generate-demand-forecast.use-case.js';
+import { DemandForecastService } from '../../infrastructure/ai/demand-forecast.service.js';
 import { z } from 'zod';
 
 const forecastSchema = z.object({

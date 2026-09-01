@@ -1,5 +1,5 @@
-import { IDemandForecastService } from './demand-forecast.service.interface';
-import { DemandForecast, ForecastCreateInput } from '../../domain/entities/forecast.entity';
+import { IDemandForecastService } from './demand-forecast.service.interface.js';
+import { DemandForecast, ForecastCreateInput } from '../../domain/entities/forecast.entity.js';
 
 export class DemandForecastService implements IDemandForecastService {
   async generateForecast(input: ForecastCreateInput): Promise<DemandForecast> {

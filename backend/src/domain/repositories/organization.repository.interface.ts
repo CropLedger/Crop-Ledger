@@ -1,4 +1,4 @@
-import { Organization, OrganizationCreateInput, OrganizationUpdateInput } from '../entities/organization.entity';
+import { Organization, OrganizationCreateInput, OrganizationUpdateInput } from '../entities/organization.entity.js';
 
 export interface IOrganizationRepository {
   findById(id: string): Promise<Organization | null>;

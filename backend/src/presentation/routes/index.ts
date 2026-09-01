@@ -1,9 +1,9 @@
 import { FastifyInstance } from 'fastify';
-import { authRoutes } from './auth.routes';
-import { contractRoutes } from './contract.routes';
-import { accountRoutes } from './account.routes';
-import { forecastRoutes } from './forecast.routes';
-import { healthRoutes } from './health.routes';
+import { authRoutes } from './auth.routes.js';
+import { contractRoutes } from './contract.routes.js';
+import { accountRoutes } from './account.routes.js';
+import { forecastRoutes } from './forecast.routes.js';
+import { healthRoutes } from './health.routes.js';
 
 export async function registerRoutes(fastify: FastifyInstance) {
   await fastify.register(authRoutes, { prefix: '/api/v1/auth' });

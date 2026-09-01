@@ -1,4 +1,4 @@
-import { Account, AccountCreateInput, AccountUpdateInput } from '../entities/account.entity';
+import { Account, AccountCreateInput, AccountUpdateInput } from '../entities/account.entity.js';
 
 export interface IAccountRepository {
   findById(id: string): Promise<Account | null>;

@@ -1,6 +1,6 @@
-import { IContractRepository } from '../../repositories/contract.repository.interface';
-import { IStellarService } from '../../../infrastructure/blockchain/stellar.service.interface';
-import { ContractCreateInput, TransactionStatus, EscrowState } from '../../entities/contract.entity';
+import { IContractRepository } from '../../repositories/contract.repository.interface.js';
+import { IStellarService } from '../../../infrastructure/blockchain/stellar.service.interface.js';
+import { ContractCreateInput, TransactionStatus, EscrowState } from '../../entities/contract.entity.js';
 
 export class CreateContractUseCase {
   constructor(

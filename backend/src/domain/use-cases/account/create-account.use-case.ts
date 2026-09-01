@@ -1,6 +1,6 @@
-import { IAccountRepository } from '../../repositories/account.repository.interface';
-import { IPasswordHasher } from '../../../infrastructure/security/password-hasher.interface';
-import { AccountCreateInput } from '../../entities/account.entity';
+import { IAccountRepository } from '../../repositories/account.repository.interface.js';
+import { IPasswordHasher } from '../../../infrastructure/security/password-hasher.interface.js';
+import { AccountCreateInput } from '../../entities/account.entity.js';
 
 export class CreateAccountUseCase {
   constructor(

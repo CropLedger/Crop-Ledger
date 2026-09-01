@@ -1,4 +1,4 @@
-import { Contract, ContractCreateInput, ContractUpdateInput } from '../entities/contract.entity';
+import { Contract, ContractCreateInput, ContractUpdateInput } from '../entities/contract.entity.js';
 
 export interface IContractRepository {
   findById(id: string): Promise<Contract | null>;

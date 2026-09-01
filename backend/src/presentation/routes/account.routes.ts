@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { AccountController } from '../controllers/account.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { AccountController } from '../controllers/account.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 
 export async function accountRoutes(fastify: FastifyInstance) {
   const controller = new AccountController();
