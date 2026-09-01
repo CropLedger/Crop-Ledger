@@ -17,15 +17,24 @@ const createContractSchema = z.object({
 
 export class ContractController {
   private createContractUseCase: CreateContractUseCase;
+  private contractRepository: ContractRepository;
 
   constructor() {
     const contractRepository = new ContractRepository();
     const stellarService = new StellarService();
+    this.contractRepository = contractRepository;
     this.createContractUseCase = new CreateContractUseCase(contractRepository, stellarService);
   }
 
   async list(request: FastifyRequest, reply: FastifyReply) {
-    reply.send({ message: 'List contracts endpoint' });
+    try {
+      const contracts = await this.contractRepository.list();
+      reply.send({ contracts });
+    } catch (error: any) {
+      reply.status(400).send({
+        error: error.message || 'Failed to fetch contracts',
+      });
+    }
   }
 
   async getById(request: FastifyRequest, reply: FastifyReply) {

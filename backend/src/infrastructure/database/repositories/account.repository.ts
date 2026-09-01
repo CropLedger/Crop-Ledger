@@ -16,6 +16,7 @@ export class AccountRepository implements IAccountRepository {
       where: { email },
       include: { organization: true },
     });
+    console.log('Found account:', account ? { id: account.id, email: account.email, hasPasswordHash: !!account.passwordHash } : null);
     return account ? this.mapToEntity(account) : null;
   }
 
@@ -85,6 +86,7 @@ export class AccountRepository implements IAccountRepository {
       id: data.id,
       organizationId: data.organizationId,
       email: data.email,
+      passwordHash: data.passwordHash,
       stellarAddress: data.stellarAddress,
       type: data.type as AccountType,
       firstName: data.firstName,

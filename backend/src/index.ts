@@ -17,7 +17,7 @@ const fastify = Fastify({
 async function bootstrap() {
   // CORS
   await fastify.register(cors, {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   });
 
