@@ -112,9 +112,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Document, Wallet, TrendCharts, Lock, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+
+const router = useRouter()
+const { login, register, logout, isAuthenticated, user } = useAuth()
 
 const activeMenu = ref('1')
 const showLoginDialog = ref(false)
@@ -160,18 +164,22 @@ const features = ref([
 
 const handleMenuSelect = (index: string) => {
   activeMenu.value = index
-  ElMessage.info(`Navigating to menu item ${index}`)
+  if (index === '1') {
+    router.push('/dashboard')
+  } else {
+    ElMessage.info(`Navigating to menu item ${index}`)
+  }
 }
 
 const handleLogin = async () => {
   loading.value = true
   try {
-    // Simulate login - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await login(loginForm.value)
     ElMessage.success('Login successful!')
     showLoginDialog.value = false
-  } catch (error) {
-    ElMessage.error('Login failed. Please try again.')
+    router.push('/dashboard')
+  } catch (error: any) {
+    ElMessage.error(error.message || 'Login failed. Please try again.')
   } finally {
     loading.value = false
   }
@@ -180,32 +188,29 @@ const handleLogin = async () => {
 const handleSignup = async () => {
   loading.value = true
   try {
-    // Simulate signup - replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    ElMessage.success('Account created successfully!')
+    await register(signupForm.value)
+    ElMessage.success('Account created successfully! Please login.')
     showSignupDialog.value = false
-  } catch (error) {
-    ElMessage.error('Signup failed. Please try again.')
+    showLoginDialog.value = true
+  } catch (error: any) {
+    ElMessage.error(error.message || 'Signup failed. Please try again.')
   } finally {
     loading.value = false
   }
 }
 
-const handleUserMenu = (command: string) => {
+const handleUserMenu = async (command: string) => {
   if (command === 'logout') {
+    await logout()
     ElMessage.success('Logged out successfully')
   } else if (command === 'profile') {
-    ElMessage.info('Profile page coming soon')
+    router.push('/profile')
   }
 }
 
 const scrollToFeatures = () => {
   featuresSection.value?.scrollIntoView({ behavior: 'smooth' })
 }
-
-// Mock auth state
-const isAuthenticated = ref(false)
-const user = ref<{ firstName?: string } | null>(null)
 </script>
 
 <style scoped>

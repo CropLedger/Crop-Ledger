@@ -127,43 +127,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Odometer, Document, Wallet, TrendCharts, Setting, Plus, Download } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const { list: listContracts } = useContracts()
+const { getStats } = useAnalytics()
 const activeMenu = ref('overview')
+const loading = ref(true)
 
 const stats = ref({
-  totalContracts: 156,
-  totalValue: 2450000,
-  pendingContracts: 23,
-  completedContracts: 133,
+  totalContracts: 0,
+  totalValue: 0,
+  pendingContracts: 0,
+  completedContracts: 0,
 })
 
-const recentContracts = ref([
-  {
-    contractNumber: 'CTR-20250827-ABC123',
-    cropType: 'Wheat',
-    quantity: 5000,
-    totalPrice: 75000,
-    status: 'PENDING',
-  },
-  {
-    contractNumber: 'CTR-20250826-DEF456',
-    cropType: 'Corn',
-    quantity: 3000,
-    totalPrice: 45000,
-    status: 'COMPLETED',
-  },
-  {
-    contractNumber: 'CTR-20250825-GHI789',
-    cropType: 'Soybeans',
-    quantity: 2000,
-    totalPrice: 60000,
-    status: 'PENDING',
-  },
-])
+const recentContracts = ref([])
+
+const fetchDashboardData = async () => {
+  try {
+    loading.value = true
+    const [contractsData, statsData] = await Promise.all([
+      listContracts({ limit: 5 }),
+      getStats(),
+    ])
+    
+    recentContracts.value = contractsData.contracts || contractsData || []
+    
+    if (statsData) {
+      stats.value = {
+        totalContracts: statsData.totalContracts || 0,
+        totalValue: statsData.totalValue || 0,
+        pendingContracts: statsData.pendingContracts || 0,
+        completedContracts: statsData.completedContracts || 0,
+      }
+    }
+  } catch (error: any) {
+    console.error('Failed to fetch dashboard data:', error)
+    ElMessage.error('Failed to load dashboard data')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchDashboardData()
+})
 
 const handleMenuSelect = (index: string) => {
   activeMenu.value = index
