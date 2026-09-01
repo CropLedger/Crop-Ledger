@@ -3,9 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// For local development with SQLite, change provider to "sqlite"
+// and use DATABASE_URL="file:./dev.db"
 
 enum AccountType {
   ENTERPRISE
@@ -127,7 +130,7 @@ model Inspection {
   
   status      String
   notes       String?
-  photos      String?   // Store as JSON string for SQLite compatibility
+  photos      String[]
   gpsLocation Json?
   
   inspectedAt DateTime  @default(now())
