@@ -9,6 +9,7 @@ export interface Account {
   id: string;
   organizationId?: string;
   email: string;
+  passwordHash?: string;
   stellarAddress?: string;
   type: AccountType;
   firstName?: string;

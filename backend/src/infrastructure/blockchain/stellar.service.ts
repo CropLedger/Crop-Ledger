@@ -44,9 +44,11 @@ export class StellarService implements IStellarService {
     try {
       const account = await this.server.loadAccount(address);
       const balance = account.balances[0];
+      const assetCode = balance.asset_type === 'native' ? 'XLM' : 
+        ('asset_code' in balance ? balance.asset_code : 'UNKNOWN');
       return {
         balance: balance.balance,
-        assetCode: balance.asset_type === 'native' ? 'XLM' : balance.asset_code,
+        assetCode,
       };
     } catch (error) {
       throw new Error(`Failed to fetch account balance: ${error}`);
