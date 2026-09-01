@@ -14,8 +14,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "types": ["vitest/globals", "node"],
-    "ignoreDeprecations": "6.0",
+    "types": ["node"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"],
