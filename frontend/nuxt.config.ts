@@ -28,7 +28,7 @@ export default defineNuxtConfig({
   
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://api.cropledger.com' : 'http://localhost:5000'),
+      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://crop-ledger.onrender.com' : 'http://localhost:5000'),
       stellarNetwork: process.env.NUXT_PUBLIC_STELLAR_NETWORK || 'TESTNET'
     }
   },
