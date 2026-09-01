@@ -2,16 +2,16 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  
+
   modules: [
     '@element-plus/nuxt',
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/i18n'
   ],
-  
+
   css: ['~/assets/css/main.css'],
-  
+
   app: {
     head: {
       title: 'CropLedger Enterprise',
@@ -25,14 +25,18 @@ export default defineNuxtConfig({
       ]
     }
   },
-  
+
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'production' ? 'https://crop-ledger.onrender.com' : 'http://localhost:5000'),
       stellarNetwork: process.env.NUXT_PUBLIC_STELLAR_NETWORK || 'TESTNET'
     }
   },
-  
+
+  nitro: {
+    preset: 'vercel'
+  },
+
   i18n: {
     defaultLocale: 'en',
     locales: [
