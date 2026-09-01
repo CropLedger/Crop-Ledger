@@ -1,9 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".output/public",
-  "framework": "nuxtjs",
-  "env": {
-    "API_BASE_URL": "@api-base-url",
-    "STELLAR_NETWORK": "TESTNET"
-  }
+  "framework": "nuxtjs"
 }
