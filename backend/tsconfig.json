@@ -14,13 +14,12 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"],
-      "@domain/*": ["./domain/*"],
-      "@application/*": ["./application/*"],
-      "@infrastructure/*": ["./infrastructure/*"],
-      "@presentation/*": ["./presentation/*"]
+      "@/*": ["./src/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@application/*": ["./src/application/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@presentation/*": ["./src/presentation/*"]
     }
   },
   "include": ["src/**/*"],
