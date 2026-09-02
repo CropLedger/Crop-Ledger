@@ -1,102 +1,121 @@
-import { prisma } from '../prisma-client.js';
+import { supabase } from '../supabase-client.js';
 import { Account, AccountCreateInput, AccountUpdateInput, AccountType } from '../../../domain/entities/account.entity.js';
 import { IAccountRepository } from '../../../domain/repositories/account.repository.interface.js';
 
 export class AccountRepository implements IAccountRepository {
   async findById(id: string): Promise<Account | null> {
-    const account = await prisma.account.findUnique({
-      where: { id },
-      include: { organization: true },
-    });
-    return account ? this.mapToEntity(account) : null;
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error || !data) return null;
+    return this.mapToEntity(data);
   }
 
   async findByEmail(email: string): Promise<Account | null> {
-    const account = await prisma.account.findUnique({
-      where: { email },
-      include: { organization: true },
-    });
-    console.log('Found account:', account ? { id: account.id, email: account.email, hasPasswordHash: !!account.passwordHash } : null);
-    return account ? this.mapToEntity(account) : null;
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error || !data) return null;
+    return this.mapToEntity(data);
   }
 
   async findByStellarAddress(address: string): Promise<Account | null> {
-    const account = await prisma.account.findUnique({
-      where: { stellarAddress: address },
-      include: { organization: true },
-    });
-    return account ? this.mapToEntity(account) : null;
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('stellar_address', address)
+      .single();
+    
+    if (error || !data) return null;
+    return this.mapToEntity(data);
   }
 
   async create(input: AccountCreateInput): Promise<Account> {
-    const account = await prisma.account.create({
-      data: {
-        email: input.email,
-        passwordHash: (input as any).password,
-        type: input.type as any,
-        organizationId: input.organizationId,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phone: input.phone,
-      },
-      include: { organization: true },
-    });
-    return this.mapToEntity(account);
+    const passwordHash = input.password; // Password should already be hashed
+    const { password, ...accountData } = input;
+    
+    const { data, error } = await supabase
+      .from('accounts')
+      .insert({
+        ...accountData,
+        password_hash: passwordHash,
+        is_active: true,
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Failed to create account: ${error.message}`);
+    return this.mapToEntity(data);
   }
 
   async update(id: string, input: AccountUpdateInput): Promise<Account> {
-    const account = await prisma.account.update({
-      where: { id },
-      data: {
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phone: input.phone,
-        avatarUrl: input.avatarUrl,
-        stellarAddress: input.stellarAddress,
-      },
-      include: { organization: true },
-    });
-    return this.mapToEntity(account);
+    const { data, error } = await supabase
+      .from('accounts')
+      .update(input)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Failed to update account: ${error.message}`);
+    return this.mapToEntity(data);
   }
 
   async delete(id: string): Promise<void> {
-    await prisma.account.delete({ where: { id } });
+    const { error } = await supabase
+      .from('accounts')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw new Error(`Failed to delete account: ${error.message}`);
   }
 
   async list(filters?: { type?: string; organizationId?: string }): Promise<Account[]> {
-    const accounts = await prisma.account.findMany({
-      where: {
-        type: filters?.type as any,
-        organizationId: filters?.organizationId,
-      },
-      include: { organization: true },
-    });
-    return accounts.map((a: any) => this.mapToEntity(a));
+    let query = supabase.from('accounts').select('*');
+    
+    if (filters?.type) {
+      query = query.eq('type', filters.type);
+    }
+    if (filters?.organizationId) {
+      query = query.eq('organization_id', filters.organizationId);
+    }
+
+    const { data, error } = await query;
+    
+    if (error) throw new Error(`Failed to list accounts: ${error.message}`);
+    return data.map(a => this.mapToEntity(a));
   }
 
   async updateLastLogin(id: string): Promise<void> {
-    await prisma.account.update({
-      where: { id },
-      data: { lastLoginAt: new Date() },
-    });
+    const { error } = await supabase
+      .from('accounts')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('id', id);
+    
+    if (error) throw new Error(`Failed to update last login: ${error.message}`);
   }
 
   private mapToEntity(data: any): Account {
     return {
       id: data.id,
-      organizationId: data.organizationId,
+      organizationId: data.organization_id,
       email: data.email,
-      passwordHash: data.passwordHash,
-      stellarAddress: data.stellarAddress,
-      type: data.type as AccountType,
-      firstName: data.firstName,
-      lastName: data.lastName,
+      passwordHash: data.password_hash,
+      stellarAddress: data.stellar_address,
+      type: data.type,
+      firstName: data.first_name,
+      lastName: data.last_name,
       phone: data.phone,
-      avatarUrl: data.avatarUrl,
-      isActive: data.isActive,
-      lastLoginAt: data.lastLoginAt,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      avatarUrl: data.avatar_url,
+      isActive: data.is_active,
+      lastLoginAt: data.last_login_at ? new Date(data.last_login_at) : undefined,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
     };
   }
 }
