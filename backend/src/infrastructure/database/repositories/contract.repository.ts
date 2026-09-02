@@ -96,6 +96,16 @@ export class ContractRepository implements IContractRepository {
     return data.map(c => this.mapToEntity(c));
   }
 
+  async findByBuyerOrSeller(accountId: string): Promise<Contract[]> {
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('*')
+      .or(`buyer_id.eq.${accountId},seller_id.eq.${accountId}`);
+    
+    if (error) throw new Error(`Failed to find contracts: ${error.message}`);
+    return data.map(c => this.mapToEntity(c));
+  }
+
   private mapToEntity(data: any): Contract {
     return {
       id: data.id,

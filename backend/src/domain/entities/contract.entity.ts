@@ -13,6 +13,7 @@ export enum EscrowState {
 
 export interface Contract {
   id: string;
+  organizationId?: string;
   contractNumber: string;
   buyerId: string;
   sellerId: string;
@@ -31,6 +32,7 @@ export interface Contract {
 }
 
 export interface ContractCreateInput {
+  organizationId?: string;
   buyerId: string;
   sellerId: string;
   cropType: string;
