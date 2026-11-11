@@ -39,7 +39,15 @@ export class ContractController {
 
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    reply.send({ message: `Get contract ${id}` });
+    try {
+      const contract = await this.contractRepository.findById(id);
+      if (!contract) {
+        return reply.status(404).send({ error: 'Contract not found' });
+      }
+      reply.send({ contract });
+    } catch (error: any) {
+      reply.status(400).send({ error: error.message || 'Failed to fetch contract' });
+    }
   }
 
   async create(request: FastifyRequest, reply: FastifyReply) {
@@ -60,11 +68,27 @@ export class ContractController {
 
   async update(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    reply.send({ message: `Update contract ${id}` });
+    try {
+      const updateSchema = z.object({
+        status: z.enum(['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'DISPUTED']).optional(),
+        escrowState: z.enum(['LOCKED', 'RELEASED', 'REFUNDED']).optional(),
+        escrowTxId: z.string().optional(),
+      });
+      const data = updateSchema.parse(request.body);
+      const contract = await this.contractRepository.update(id, data);
+      reply.send({ contract });
+    } catch (error: any) {
+      reply.status(400).send({ error: error.message || 'Failed to update contract' });
+    }
   }
 
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    reply.send({ message: `Delete contract ${id}` });
+    try {
+      await this.contractRepository.delete(id);
+      reply.status(204).send();
+    } catch (error: any) {
+      reply.status(400).send({ error: error.message || 'Failed to delete contract' });
+    }
   }
 }

@@ -1,100 +1,113 @@
 # CropLedger Enterprise
 
-<p align="center">
-  <b>Enterprise-Grade Agricultural Supply Chain Management on Stellar Blockchain</b>
-</p>
+**Enterprise agricultural supply chain management on the Stellar blockchain.**
 
-<p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar-XLM-blue" alt="Stellar"></a>
-  <a href="https://fastify.io"><img src="https://img.shields.io/badge/Fastify-Node-green" alt="Fastify"></a>
-  <a href="https://nuxt.com"><img src="https://img.shields.io/badge/Nuxt-3-green" alt="Nuxt 3"></a>
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Stellar Testnet](https://img.shields.io/badge/Stellar-Testnet-blue)](https://stellar.org)
+[![CI](https://github.com/your-org/CropLedger/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/CropLedger/actions)
 
 ---
 
-## 🎯 Vision
+## What it does
 
-CropLedger Enterprise transforms agricultural supply chain management through blockchain technology, providing enterprises with:
+CropLedger connects farmers, buyers, and cooperatives on a shared supply chain
+ledger with on-chain escrow payments and an end-to-end traceability trail for
+every agricultural batch.
 
-- **Smart Contract Escrow**: Automated, trustless payments via Stellar Claimable Balances
-- **Real-Time Analytics**: Advanced dashboard with predictive crop yield analytics
-- **Multi-Tenant Architecture**: Enterprise-grade multi-organization support
-- **AI-Powered Insights**: Machine learning models for demand forecasting
-- **Compliance Ready**: Built-in audit trails and regulatory reporting
-
----
-
-## 🏗️ Architecture
-
-### Technology Stack
-- **Backend**: Fastify (Node.js) with Clean Architecture (Hexagonal Pattern)
-- **Frontend**: Nuxt.js 3 with Element Plus UI
-- **Database**: PostgreSQL with Prisma ORM
-- **Blockchain**: Stellar Network (Smart contracts, Escrow, Payments)
-- **Caching**: Redis with BullMQ for job queues
-- **Testing**: Vitest + Playwright
-
-### Clean Architecture Layers
-```
-├── domain/           # Business logic (entities, use cases, repositories interfaces)
-├── application/      # Application services (orchestration, DTOs)
-├── infrastructure/   # External implementations (database, Stellar, Redis)
-└── presentation/     # API controllers, WebSocket handlers
-```
+| Feature | Status |
+|---------|--------|
+| Contract creation with Stellar Claimable Balance escrow | ✅ Working |
+| Agricultural batch lifecycle (CREATED → DELIVERED) | ✅ Working |
+| Traceability event log (harvest, transit, inspection, delivery) | ✅ Working |
+| JWT-authenticated REST API (Fastify) | ✅ Working |
+| Dashboard, contracts, batches, analytics pages (Nuxt 3) | ✅ Working |
+| Soroban escrow smart contract (Rust) | ✅ Scaffolded — needs Rust toolchain to build |
+| Freighter wallet composable | ✅ Implemented — not yet wired to UI |
+| AI demand forecasting | ⚠️ Hardcoded lookup tables — real ML not implemented |
 
 ---
 
-## 🚀 Quick Start
+## Technology stack
+
+- **Backend**: Fastify 5 (Node.js 20), Clean Architecture, Zod validation
+- **Frontend**: Nuxt.js 3, Element Plus, TypeScript
+- **Database**: Supabase (PostgreSQL-as-a-service)
+- **Blockchain**: Stellar SDK — Horizon API, Claimable Balances
+- **Smart contracts**: Soroban (`contracts/escrow/`) — Rust + `soroban-sdk`
+- **Wallet**: Freighter browser extension
+- **Testing**: Vitest
+- **CI**: GitHub Actions
+
+---
+
+## Quick start
 
 ### Prerequisites
-- Node.js 20+ & npm
-- PostgreSQL 16+
-- Redis 7+
 
-### Installation
+- Node.js 20+
+- A free [Supabase](https://supabase.com) project
+- A funded Stellar Testnet keypair from [Stellar Laboratory](https://laboratory.stellar.org/#account-creator)
+
+### 1 — Database
+
+Run `supabase/migrations/001_initial_schema.sql` in your Supabase SQL editor.
+
+### 2 — Backend
+
 ```bash
-# Clone repository
-git clone https://github.com/your-org/CropLedger.git
-cd CropLedger
-
-# Backend setup
 cd backend
 npm install
 cp .env.example .env
-npx prisma migrate dev
+# Fill in SUPABASE_URL, SUPABASE_KEY, JWT_SECRET, STELLAR_SECRET_KEY
 npm run dev
-
-# Frontend setup (new terminal)
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
+# → http://localhost:4000  (API)
+# → http://localhost:4000/docs  (Swagger UI)
 ```
 
-Visit `http://localhost:3000`
+### 3 — Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+# → http://localhost:3000
+```
+
+Full setup instructions: [docs/setup.md](docs/setup.md)
 
 ---
 
-## 📚 Documentation
+## Repository structure
 
-- [Architecture Guide](docs/architecture.md)
-- [API Documentation](docs/api.md)
-- [Developer Setup](docs/setup.md)
-- [Contributing](CONTRIBUTING.md)
+```
+CropLedger/
+├── backend/          Fastify API (TypeScript)
+├── contracts/        Soroban smart contracts (Rust)
+│   └── escrow/       On-chain escrow contract
+├── frontend/         Nuxt.js 3 app (TypeScript/Vue)
+├── supabase/
+│   └── migrations/   Database schema SQL
+├── docs/
+│   ├── architecture.md
+│   ├── setup.md
+│   └── api.md
+├── .github/
+│   └── workflows/ci.yml
+├── AUDIT.md          Technical audit findings (2026-11-11)
+├── CONTRIBUTING.md
+├── SECURITY.md
+└── CODE_OF_CONDUCT.md
+```
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-We follow a structured contribution process. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file.
+See [CONTRIBUTING.md](CONTRIBUTING.md). We use Conventional Commits and
+require all CI checks to pass before merging.
 
 ---
 
-<p align="center"><b>Built for enterprise agriculture 🌾</b></p>
+## License
+
+[MIT](LICENSE) © CropLedger Contributors

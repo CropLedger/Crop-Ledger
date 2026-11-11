@@ -35,15 +35,7 @@ export class AuthController {
 
   async register(request: FastifyRequest, reply: FastifyReply) {
     try {
-      console.log('Register request received:', request.body);
-      console.log('Use case initialized:', !!this.createAccountUseCase);
-      
-      if (!this.createAccountUseCase) {
-        throw new Error('CreateAccountUseCase not initialized');
-      }
-      
       const data = registerSchema.parse(request.body);
-      console.log('Data validated:', data);
       
       await this.createAccountUseCase.execute(data as any);
       
@@ -51,7 +43,6 @@ export class AuthController {
         message: 'Account created successfully',
       });
     } catch (error: any) {
-      console.error('Registration error:', error);
       reply.status(400).send({
         error: error.message || 'Registration failed',
       });
@@ -97,7 +88,6 @@ export class AuthController {
         },
       });
     } catch (error: any) {
-      console.error('Login error:', error);
       reply.status(400).send({
         error: error.message || 'Login failed',
       });
@@ -105,10 +95,31 @@ export class AuthController {
   }
 
   async refreshToken(request: FastifyRequest, reply: FastifyReply) {
-    reply.send({ message: 'Refresh token endpoint' });
+    try {
+      // Verify the existing token (throws if invalid/expired)
+      await request.jwtVerify();
+      const payload = request.user as { sub: string; email: string; type: string };
+
+      const account = await this.accountRepository.findByEmail(payload.email);
+      if (!account) {
+        return reply.status(401).send({ error: 'Account no longer exists' });
+      }
+
+      const token = request.server.jwt.sign({
+        sub: account.id,
+        email: account.email,
+        type: account.type,
+      });
+
+      reply.send({ token });
+    } catch (error: any) {
+      reply.status(401).send({ error: 'Invalid or expired token' });
+    }
   }
 
   async logout(request: FastifyRequest, reply: FastifyReply) {
-    reply.send({ message: 'Logout successful' });
+    // JWT is stateless — the client discards the token.
+    // A production implementation would add the JTI to a Redis denylist here.
+    reply.send({ message: 'Logged out successfully' });
   }
 }

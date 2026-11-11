@@ -15,9 +15,9 @@
             <el-icon><Document /></el-icon>
             <span>Contracts</span>
           </el-menu-item>
-          <el-menu-item index="vaults">
-            <el-icon><Wallet /></el-icon>
-            <span>Vaults</span>
+          <el-menu-item index="batches">
+            <el-icon><Box /></el-icon>
+            <span>Batches</span>
           </el-menu-item>
           <el-menu-item index="analytics">
             <el-icon><TrendCharts /></el-icon>
@@ -129,7 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Odometer, Document, Wallet, TrendCharts, Setting, Plus, Download } from '@element-plus/icons-vue'
+import { Odometer, Document, Box, TrendCharts, Setting, Plus, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -179,18 +179,25 @@ onMounted(() => {
 
 const handleMenuSelect = (index: string) => {
   activeMenu.value = index
+  const routes: Record<string, string> = {
+    overview: '/dashboard',
+    contracts: '/contracts',
+    batches: '/batches',
+    analytics: '/analytics',
+  }
+  if (routes[index]) router.push(routes[index])
 }
 
 const handleNewContract = () => {
-  router.push('/contracts/new')
+  router.push('/contracts')
 }
 
 const handleDeposit = () => {
-  router.push('/vaults/deposit')
+  router.push('/batches')
 }
 
 const handleWithdraw = () => {
-  router.push('/vaults/withdraw')
+  router.push('/batches')
 }
 
 const handleAnalytics = () => {

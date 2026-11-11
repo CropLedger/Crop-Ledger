@@ -2,490 +2,180 @@
 
 ## Prerequisites
 
-Ensure you have the following installed:
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Node.js | 20 LTS | Backend + frontend |
+| npm | 10+ | Package management |
+| Rust | stable | Soroban smart contracts |
+| Stellar CLI | 21+ | Contract deploy |
+| Git | any | Source control |
 
-- **Node.js** 20+ (LTS recommended)
-- **npm** 10+ or **pnpm** 8+
-- **PostgreSQL** 16+
-- **Redis** 7+
-- **Git**
-
-### Verify installations
-
-```bash
-node --version  # Should be v20.x.x
-npm --version   # Should be 10.x.x
-psql --version  # Should be 16.x
-redis-cli --version  # Should be 7.x
-```
+**You do NOT need PostgreSQL, Redis, or Docker to run locally.**
+The database is Supabase (hosted). Create a free project at
+<https://supabase.com> to get your `SUPABASE_URL` and `SUPABASE_KEY`.
 
 ---
 
-## Repository Setup
-
-### Clone the repository
+## 1 — Clone and configure
 
 ```bash
 git clone https://github.com/your-org/CropLedger.git
 cd CropLedger
 ```
 
-### Install development tools (optional)
-
-```bash
-# Install Husky for git hooks
-npm install -g husky
-
-# Install commitlint for conventional commits
-npm install -g @commitlint/cli @commitlint/config-conventional
-```
-
----
-
-## Backend Setup
-
-### Navigate to backend directory
+### Backend environment
 
 ```bash
 cd backend
-```
-
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Configure environment variables
-
-```bash
 cp .env.example .env
 ```
 
-Edit `.env` with your configuration:
+Fill in `.env`:
 
 ```env
-# Server
-PORT=3001
+PORT=4000
 NODE_ENV=development
 
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/croppedger?schema=public"
+# From your Supabase project: Settings → API
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_KEY=your-anon-public-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
+# Generate: openssl rand -hex 64
+JWT_SECRET=<64-char-hex-string>
 
-# Stellar
-STELLAR_NETWORK=testnet
-STELLAR_SECRET_KEY=your_secret_key
-STELLAR_PUBLIC_KEY=your_public_key
-
-# JWT
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=7d
-REFRESH_TOKEN_EXPIRES_IN=30d
-
-# CORS
-CORS_ORIGIN=http://localhost:3000
+# From https://laboratory.stellar.org/#account-creator (Testnet)
+STELLAR_NETWORK=TESTNET
+STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+STELLAR_SECRET_KEY=S...
 ```
 
-### Set up PostgreSQL database
-
-```bash
-# Create database
-createdb croppedger
-
-# Or using psql
-psql -U postgres
-CREATE DATABASE croppedger;
-\q
-```
-
-### Run Prisma migrations
-
-```bash
-# Generate Prisma client
-npx prisma generate
-
-# Run migrations
-npx prisma migrate dev
-
-# (Optional) Seed database
-npx prisma db seed
-```
-
-### Start Redis server
-
-```bash
-# On Windows (using WSL or Docker)
-redis-server
-
-# On macOS
-brew services start redis
-
-# On Linux
-sudo systemctl start redis
-```
-
-### Start development server
-
-```bash
-npm run dev
-```
-
-Backend will be available at `http://localhost:3001`
-
-### Run tests
-
-```bash
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Test with coverage
-npm run test:coverage
-```
-
----
-
-## Frontend Setup
-
-### Navigate to frontend directory (new terminal)
+### Frontend environment
 
 ```bash
 cd frontend
-```
-
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Configure environment variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-
-```env
-# API
-NUXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
-
-# Stellar
-NUXT_PUBLIC_STELLAR_NETWORK=testnet
-
-# App
-NUXT_PUBLIC_APP_NAME=CropLedger Enterprise
-NUXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### Start development server
-
-```bash
-npm run dev
-```
-
-Frontend will be available at `http://localhost:3000`
-
-### Run tests
-
-```bash
-# Unit tests
-npm run test
-
-# E2E tests with Playwright
-npm run test:e2e
-
-# Linting
-npm run lint
+# No .env.example needed; apiBase defaults to localhost:4000 in nuxt.config.ts
+# Override only if deploying:
+# NUXT_PUBLIC_API_BASE_URL=https://your-api.onrender.com
 ```
 
 ---
 
-## Docker Setup (Alternative)
+## 2 — Set up the database
 
-### Using Docker Compose
+Run the migration SQL **once** in your Supabase SQL editor
+(Dashboard → SQL Editor → New query):
 
 ```bash
-# From project root
-docker-compose up -d
+cat supabase/migrations/001_initial_schema.sql
+# Copy the output and paste into the Supabase SQL editor, then Run
 ```
 
-This will start:
-- PostgreSQL database
-- Redis server
-- Backend API
-- Frontend application
+Or if you have the Supabase CLI installed:
 
-### Docker Compose services
-
-```yaml
-services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: croppedger
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
-  backend:
-    build: ./backend
-    ports:
-      - "3001:3001"
-    depends_on:
-      - postgres
-      - redis
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+```bash
+supabase link --project-ref your-project-ref
+supabase db push
 ```
 
 ---
 
-## Stellar Testnet Setup
-
-### Create a Stellar testnet account
-
-1. Visit [Stellar Laboratory](https://laboratory.stellar.org/)
-2. Go to "Account Viewer"
-3. Create a new account or import existing keypair
-4. Request testnet XLM from friendbot
-
-### Configure backend with Stellar credentials
-
-Add to `backend/.env`:
-
-```env
-STELLAR_NETWORK=testnet
-STELLAR_SECRET_KEY=Sxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-STELLAR_PUBLIC_KEY=Gxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-### Verify Stellar connection
+## 3 — Start the backend
 
 ```bash
 cd backend
-npm run stellar:test
+npm install
+npm run dev
+# → http://localhost:4000
+# → http://localhost:4000/docs  (Swagger UI)
 ```
 
 ---
 
-## IDE Configuration
+## 4 — Start the frontend
 
-### VS Code Extensions
-
-Install these extensions for optimal development:
-
-- **ESLint** - JavaScript/TypeScript linting
-- **Prettier** - Code formatting
-- **Prisma** - Database ORM support
-- **Vitest** - Test runner integration
-- **Tailwind CSS IntelliSense** - CSS autocomplete
-- **Vue - Official** - Vue/Nuxt support
-
-### VS Code Settings
-
-Create `.vscode/settings.json`:
-
-```json
-{
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "typescript.tsdk": "backend/node_modules/typescript/lib",
-  "vue.server.hybridMode": true
-}
+```bash
+cd frontend
+npm install
+npm run dev
+# → http://localhost:3000
 ```
 
 ---
 
-## Common Issues & Solutions
+## 5 — Run backend tests
 
-### PostgreSQL connection error
-
-**Error**: `connection refused` or `authentication failed`
-
-**Solution**:
 ```bash
-# Check PostgreSQL is running
-pg_isready
-
-# Check connection string in .env
-# Ensure user/password match your PostgreSQL setup
+cd backend
+npm test
 ```
 
-### Redis connection error
-
-**Error**: `Redis connection to localhost:6379 failed`
-
-**Solution**:
-```bash
-# Start Redis server
-redis-server
-
-# Or check if Redis is running
-redis-cli ping
-# Should return: PONG
-```
-
-### Prisma migration error
-
-**Error**: `Migration failed`
-
-**Solution**:
-```bash
-# Reset database (WARNING: deletes all data)
-npx prisma migrate reset
-
-# Or resolve migration conflict
-npx prisma migrate resolve --applied "migration_name"
-```
-
-### Stellar network error
-
-**Error**: `Network error when connecting to Stellar`
-
-**Solution**:
-```bash
-# Verify network setting in .env
-# Ensure you're using testnet for development
-STELLAR_NETWORK=testnet
-
-# Check your secret key is valid
-# Request testnet XLM from friendbot
-```
-
-### Port already in use
-
-**Error**: `EADDRINUSE: address already in use`
-
-**Solution**:
-```bash
-# Find process using the port
-netstat -ano | findstr :3001  # Windows
-lsof -i :3001  # macOS/Linux
-
-# Kill the process or change PORT in .env
-PORT=3002 npm run dev
-```
+The test suite uses Vitest with mocked repositories — no live database
+connection is needed to run tests.
 
 ---
 
-## Development Workflow
-
-### Branch naming
+## 6 — Build & deploy the Soroban escrow contract (optional)
 
 ```bash
-feature/add-demand-forecasting
-fix/stellar-payment-error
-docs/update-api-documentation
-refactor/clean-architecture
+# Install Rust wasm target
+rustup target add wasm32-unknown-unknown
+
+# Build
+cd contracts
+cargo build --target wasm32-unknown-unknown --release
+
+# Install Stellar CLI (if needed)
+cargo install stellar-cli --features opt
+
+# Deploy to Testnet
+stellar contract deploy \
+  --wasm escrow/target/wasm32-unknown-unknown/release/cropledger_escrow.wasm \
+  --source "$STELLAR_SECRET_KEY" \
+  --network testnet
 ```
 
-### Commit messages
-
-Follow conventional commits:
-
-```bash
-feat: add demand forecasting API
-fix: resolve Stellar escrow timeout
-docs: update setup guide
-refactor: extract user service
-test: add contract e2e tests
-```
-
-### Pull request process
-
-1. Create feature branch from `main`
-2. Make changes and commit
-3. Push to remote
-4. Create pull request
-5. Request review
-6. Address feedback
-7. Merge to `main`
+The deployed contract ID should be stored as an environment variable
+(`SOROBAN_ESCROW_CONTRACT_ID`) and passed to the backend at startup.
 
 ---
 
-## Performance Tips
+## 7 — Install the Freighter wallet (browser)
 
-### Backend
-
-- Use Redis caching for frequently accessed data
-- Enable database connection pooling
-- Use BullMQ for background jobs
-- Monitor query performance with Prisma
-
-### Frontend
-
-- Use Nuxt.js server-side rendering
-- Implement lazy loading for components
-- Optimize images with Nuxt Image module
-- Use Pinia for efficient state management
+1. Install [Freighter](https://www.freighter.app/) from the Chrome Web Store.
+2. Create or import a Testnet keypair.
+3. Enable Testnet in Freighter: Settings → Network → Testnet.
+4. The `useFreighter()` composable will detect the extension automatically.
 
 ---
 
-## Debugging
+## Ports summary
 
-### Backend debugging
-
-```bash
-# Run with Node debugger
-node --inspect-brk src/server.js
-
-# Or use VS Code launch configuration
-# Press F5 to start debugging
-```
-
-### Frontend debugging
-
-```bash
-# Nuxt provides Chrome DevTools integration
-# Open browser DevTools for Vue component inspection
-```
-
-### Database debugging
-
-```bash
-# View Prisma queries
-npx prisma studio
-
-# Log SQL queries
-# Add to .env: DATABASE_URL="...?connection_limit=1&loglevel=debug"
-```
+| Service | Port |
+|---------|------|
+| Backend API | 4000 |
+| Swagger UI | 4000/docs |
+| Frontend | 3000 |
+| Supabase | hosted |
+| Stellar Testnet | hosted (horizon-testnet.stellar.org) |
 
 ---
 
-## Next Steps
+## Common issues
 
-- Read the [Architecture Guide](architecture.md)
-- Review the [API Documentation](api.md)
-- Check [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines
-- Explore the codebase starting with domain entities
+### `JWT_SECRET environment variable is required`
+The server now refuses to start without a JWT secret. Set it in `.env`:
+```bash
+echo "JWT_SECRET=$(openssl rand -hex 64)" >> backend/.env
+```
 
----
+### Supabase `relation "agricultural_batches" does not exist`
+You need to run the migration SQL. See step 2 above.
 
-## Getting Help
+### `STELLAR_SECRET_KEY is required to create an escrow`
+The Stellar service no longer uses fake IDs. Fund a Testnet keypair at
+<https://laboratory.stellar.org/#account-creator> and add its secret to `.env`.
 
-- **Documentation**: Check `/docs` directory
-- **Issues**: Open an issue on GitHub
-- **Discussions**: Join GitHub Discussions
-- **Email**: support@croppedger.com
+### Freighter `window.freighterApi` is undefined
+The browser extension is not installed or is locked. Install it from
+<https://www.freighter.app/> and unlock it before connecting.
