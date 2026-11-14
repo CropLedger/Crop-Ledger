@@ -3,7 +3,7 @@ import { CreateContractUseCase } from '../../domain/use-cases/contract/create-co
 import { ContractRepository } from '../../infrastructure/database/repositories/contract.repository.js';
 import { StellarService } from '../../infrastructure/blockchain/stellar.service.js';
 import { z } from 'zod';
-import { TransactionStatus } from '../../domain/entities/contract.entity.js';
+import { EscrowState, TransactionStatus } from '../../domain/entities/contract.entity.js';
 
 const createContractSchema = z.object({
   buyerId: z.string(),
@@ -72,7 +72,7 @@ export class ContractController {
     try {
       const updateSchema = z.object({
         status: z.nativeEnum(TransactionStatus).optional(),
-        escrowState: z.enum(['LOCKED', 'RELEASED', 'REFUNDED']).optional(),
+        escrowState: z.nativeEnum(EscrowState).optional(),
         escrowTxId: z.string().optional(),
       });
       const data = updateSchema.parse(request.body);
