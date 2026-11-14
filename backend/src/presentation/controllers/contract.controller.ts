@@ -3,6 +3,7 @@ import { CreateContractUseCase } from '../../domain/use-cases/contract/create-co
 import { ContractRepository } from '../../infrastructure/database/repositories/contract.repository.js';
 import { StellarService } from '../../infrastructure/blockchain/stellar.service.js';
 import { z } from 'zod';
+import { TransactionStatus } from '../../domain/entities/contract.entity.js';
 
 const createContractSchema = z.object({
   buyerId: z.string(),
@@ -70,7 +71,7 @@ export class ContractController {
     const { id } = request.params as { id: string };
     try {
       const updateSchema = z.object({
-        status: z.enum(['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'DISPUTED']).optional(),
+        status: z.nativeEnum(TransactionStatus).optional(),
         escrowState: z.enum(['LOCKED', 'RELEASED', 'REFUNDED']).optional(),
         escrowTxId: z.string().optional(),
       });
